@@ -1,5 +1,7 @@
 #include<xc.h>           // processor SFR definitions
 #include<sys/attribs.h>  // __ISR macro
+#include <stdio.h>
+#include "UART.h"
 
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
@@ -32,6 +34,11 @@
 #pragma config PMDL1WAY = OFF // allow multiple reconfigurations
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
 
+#define MAX_LENGTH 100
+
+//function definitions 
+void blink_led(void);
+
 int main() {
 
     __builtin_disable_interrupts(); // disable interrupts while initializing things
@@ -51,30 +58,49 @@ int main() {
     // do your TRIS and LAT commands here
 
     __builtin_enable_interrupts();
-    
+
+    UART1_INIT();
     //initialize pins and write to output
     TRISBbits.TRISB4 = 1;
     TRISAbits.TRISA4 = 0;
     LATAbits.LATA4 = 0;
-    
-    int half_sec = 12000000;
+
+    char message[MAX_LENGTH];
+    int count = 0;
+
     while (1) {
         // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
         // remember the core timer runs at half the sysclk
-        if(PORTBbits.RB4 == 0){ //when button is pushed
-            LATAbits.LATA4 = 1; //on and off led for half second intervals
-            _CP0_SET_COUNT(0);
-            while(_CP0_GET_COUNT() < half_sec){;}   //delay for half second between commands
-            LATAbits.LATA4 = 0;
-            _CP0_SET_COUNT(0);
-            while(_CP0_GET_COUNT() < half_sec){;}
-            LATAbits.LATA4 = 1;
-            _CP0_SET_COUNT(0);
-            while(_CP0_GET_COUNT() < half_sec){;}
-            LATAbits.LATA4 = 0;
-            _CP0_SET_COUNT(0);
-            while(_CP0_GET_COUNT() < half_sec){;}
+        if (PORTBbits.RB4 == 0) { //when button is pushed
+            count++;
+            sprintf(message, "button pushed %i\r\n", count);
+            NU32_WriteUART1(message);
+            blink_led();
         }
-        
+
+    }
+}
+
+void blink_led() {
+    int half_sec = 12000000;
+    LATAbits.LATA4 = 1; //on and off led for half second intervals
+    _CP0_SET_COUNT(0);
+    while (_CP0_GET_COUNT() < half_sec) {
+        ;
+    } //delay for half second between commands
+    LATAbits.LATA4 = 0;
+    _CP0_SET_COUNT(0);
+    while (_CP0_GET_COUNT() < half_sec) {
+        ;
+    }
+    LATAbits.LATA4 = 1;
+    _CP0_SET_COUNT(0);
+    while (_CP0_GET_COUNT() < half_sec) {
+        ;
+    }
+    LATAbits.LATA4 = 0;
+    _CP0_SET_COUNT(0);
+    while (_CP0_GET_COUNT() < half_sec) {
+        ;
     }
 }
