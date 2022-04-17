@@ -19,15 +19,27 @@ void main() {
 
     //init spi
     initSPI();
-
+    float degree = 0;
+    float flag_direction = 1.0;
     while (1) {
         //    output 2hz sin and 1Hz triangle
         //    convert from short to 2 unsigned chars
-        unsigned char in_1 = 0b01110000;
-        unsigned char in_2 = 0b00000000;
+//        if(degree >= (2*M_PI)){
+//            degree = 2*M_PI;
+//            flag_direction = -1.0;
+//        } else if(degree <= 0){
+//            degree = 0;
+//            flag_direction = 1.0;
+//        }
         unsigned char out_1;
         unsigned char out_2;
-
+        unsigned short output;
+        unsigned char volt = 0b11111111 * ((sin(degree)/2.1)+127.0); //just added sin portion to go from triangle to sin and had just the if degree is greater, reset to 0
+        output = Convertto16bit(0, volt);
+        unsigned char in_1 = output >> 8;
+        unsigned char in_2 = (output & 0b0000000011111111);
+        //        unsigned char in_1 = 0b01111111;
+        //        unsigned char in_2 = 0b11110000;
         //    update VoutA
         //    talking to DAC
         //    CS goes low
@@ -42,15 +54,16 @@ void main() {
         LATBbits.LATB6 = 1;
 
         //    repeat to send VoutB
-//        LATBbits.LATB6 = 0;
-//        out_2 = spi_io(in_2);
-//        LATBbits.LATB6 = 1;
+        //        LATBbits.LATB6 = 0;
+        //        out_2 = spi_io(in_2);
+        //        LATBbits.LATB6 = 1;
 
         //    16 bit number is a or b, 1, 1, 1, 8bits of voltage, last 4 dont matter (split into 8 and 8 to send first half then second) (pg24 of IC data sheet)
         //    unsigned chars for 8bit number
         //    shorts are 16bit numbers (s = (c1<<8)|c2)
 
         //    for sin, do scalar to sin or array with values
+        degree += (0.95*flag_direction);
     }
 }
 
