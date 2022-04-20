@@ -5,10 +5,11 @@
 
 #include <xc.h>
 
-#define ADDRESS 0b0100100 //from datasheet format, pg 8 datasheet
+#define ADDRESS 0b0100000 //from datasheet format, pg 8 datasheet
 #define IODIR   0x00   //initing, values from page 6 on data sheet
 #define GPIO    0x09
 #define OLAT    0x0A    //turn on pins
+#define GPPU    0x06
 
 void i2c_master_setup(void); // set up I2C1 as master
 void i2c_master_start(void); // send a START signal

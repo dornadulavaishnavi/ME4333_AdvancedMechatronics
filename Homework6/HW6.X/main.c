@@ -50,16 +50,26 @@ void main() {
     //keep pic init, A4, B4, UART
     PIC_INIT();
     UART1_INIT();
-    //    i2c_master_setup();
-    //
-    //    //init mcp23008 with gp7 as output and gp0 as input, both are LSB and MSB of GPIO
-    //    //write to init
-    //    Write_Message_I2C(ADDRESS, IODIR, 0b10000000);
-    //    //same olat to set button pull up
-    //    Write_Message_I2C(ADDRESS, OLAT, 0b00000001);
+    i2c_master_setup();
+
+    //init mcp23008 with gp7 as output and gp0 as input, both are LSB and MSB of GPIO
+    //write to init
+    Write_Message_I2C(ADDRESS, IODIR, 0b00000001);
+    //same gppu to set button pull up (change to gppu)
+    Write_Message_I2C(ADDRESS, GPPU, 0b00000001);
+//    Write_Message_I2C(ADDRESS, OLAT, 0b10000000);
+
     while (1) {
         blink_LED();
+//            Write_Message_I2C(ADDRESS, OLAT, 0b10000000);
+
         //read from gpio
+                unsigned char gpio_status = Read_Message_I2C(ADDRESS, GPIO);
+                if ((gpio_status & 0b00000001) == 0b0) {
+                    Write_Message_I2C(ADDRESS, OLAT, (0b10000000));
+                } else{ 
+                    Write_Message_I2C(ADDRESS, OLAT, (0b00000000));                    
+                }
         //check if button is pushed
         //if so, turn on b4
 
@@ -117,7 +127,7 @@ unsigned char Read_Message_I2C(unsigned char address, unsigned char reg) {
     //send start bit
     i2c_master_start();
     //write the address with a write or read bit 
-    i2c_master_send(address << 1 | 0b1);
+    i2c_master_send(address << 1);
     //write register to change
     i2c_master_send(reg);
     //reset i2c
@@ -147,10 +157,6 @@ void blink_LED() {
 //    - what should init do? is the i2c init for the pic or for the ic
  * 
 //    - what is final goal to show? which LED is heartbeat and which is button on and off
- * 
-//    - only hooking up scl, sda, reset to mclr, vss, and vdd. other than button and led, no other sp0 pins right?
- * 
-//    - how do we set the internal pull up resistor
  * 
 //    - should the blink have a delay?
  * 
