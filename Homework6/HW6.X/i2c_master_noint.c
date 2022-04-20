@@ -7,9 +7,10 @@ void i2c_master_setup(void) {
     // using a large BRG to see it on the nScope, make it smaller after verifying that code works
     // look up TPGD in the datasheet
     I2C1BRG = 1000; // I2CBRG = [1/(2*Fsck) - TPGD]*Pblck - 2 (TPGD is the Pulse Gobbler Delay)
-    //init mcp23008 with gp7 as output and gp0 as input, both are LSB and MSB of GPIO
-    //choose scl and sda pins
     I2C1CONbits.ON = 1; // turn on the I2C1 module
+    
+    //choose scl and sda pins
+    TRISBbits.TRISB7 = 0; //using RB7 for I2C SDA
 }
 
 void i2c_master_start(void) {

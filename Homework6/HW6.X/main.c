@@ -6,21 +6,63 @@
 #include "UART.h"
 #include "i2c_master_noint.h"
 
+// DEVCFG0
+#pragma config DEBUG = OFF // disable debugging
+#pragma config JTAGEN = OFF  // disable jtag
+#pragma config ICESEL = ICS_PGx1 // use PGED1 and PGEC1
+#pragma config PWP = OFF // disable flash write protect
+#pragma config BWP = OFF // disable boot write protect
+#pragma config CP = OFF // disable code protect
+
+// DEVCFG1
+#pragma config FNOSC = FRCPLL // use fast frc oscillator with pll
+#pragma config FSOSCEN = OFF // disable secondary oscillator
+#pragma config IESO = OFF // disable switching clocks
+#pragma config POSCMOD = OFF // primary osc disabled
+#pragma config OSCIOFNC = OFF // disable clock output
+#pragma config FPBDIV = DIV_1 // divide sysclk freq by 1 for peripheral bus clock
+#pragma config FCKSM = CSDCMD // disable clock switch and FSCM
+#pragma config WDTPS = PS1 // use largest wdt value
+#pragma config WINDIS = OFF // use non-window mode wdt
+#pragma config FWDTEN = OFF // wdt disabled
+#pragma config FWDTWINSZ = WINSZ_25 // wdt window at 25%
+
+// DEVCFG2 - get the sysclk clock to 48MHz from the 8MHz fast rc internal oscillator
+#pragma config FPLLIDIV = DIV_2 // divide input clock to be in range 4-5MHz
+#pragma config FPLLMUL = MUL_24 // multiply clock after FPLLIDIV
+#pragma config FPLLODIV = DIV_2 // divide clock after FPLLMUL to get 48MHz
+
+// DEVCFG3
+#pragma config USERID = 00000000 // some 16bit userid, doesn't matter what
+#pragma config PMDL1WAY = OFF // allow multiple reconfigurations
+#pragma config IOL1WAY = OFF // allow multiple reconfigurations
+
 void PIC_INIT();
 unsigned short Convertto16bit(char channel, unsigned char v);
+void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send);
+unsigned char Read_Message_I2C(unsigned char address, unsigned char reg);
+void blink_LED();
+
+//global vars
+int button_val = 0;
 
 void main() {
     //keep pic init, A4, B4, UART
     PIC_INIT();
     UART1_INIT();
-    initSPI();
-    i2c_master_setup();
-
+    //    i2c_master_setup();
+    //
+    //    //init mcp23008 with gp7 as output and gp0 as input, both are LSB and MSB of GPIO
+    //    //write to init
+    //    Write_Message_I2C(ADDRESS, IODIR, 0b10000000);
+    //    //same olat to set button pull up
+    //    Write_Message_I2C(ADDRESS, OLAT, 0b00000001);
     while (1) {
-        //write to init
-        //write to turn on gp7
+        blink_LED();
         //read from gpio
         //check if button is pushed
+        //if so, turn on b4
+
     }
 }
 
@@ -62,7 +104,7 @@ void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char t
     //send start bit
     i2c_master_start();
     //write the address with a write or read bit 
-    i2c_master_send(ADDRESS << 1 |);
+    i2c_master_send(address << 1);
     //write register to change
     i2c_master_send(reg);
     //write value to change to
@@ -75,23 +117,43 @@ unsigned char Read_Message_I2C(unsigned char address, unsigned char reg) {
     //send start bit
     i2c_master_start();
     //write the address with a write or read bit 
-    i2c_master_send(ADDRESS << 1 |);
+    i2c_master_send(address << 1 | 0b1);
     //write register to change
     i2c_master_send(reg);
     //reset i2c
     i2c_master_restart();
-    i2c_master_send(address<<1|0b1); //to read
+    i2c_master_send(address << 1 | 0b1); //to read
     unsigned char ret = i2c_master_recv();
     i2c_master_ack(1);
     i2c_master_stop();
-    
-    return ret;        
+
+    return ret;
 }
 
+void blink_LED() {
+    LATAbits.LATA4 = !button_val;
+    button_val = !button_val;
+    int i = 0;
+    for (i = 0; i < 1000000; i++) {
+        ;
+    }
+    //    Write_Message_I2C(ADDRESS, GPIO, (!button_val<<7));
+    //    Write_Message_I2C(ADDRESS, GPIO, (0b10000000));
+
+}
+
+/*
 //questions for oh:
-//    - what should init do?
-//    - what is final goal to show?
-//    - only hooking up scl, sda, reset to mclr, vss, and vdd. other than button and led, no ther sp0 pins irhgt?
-//    - so adding another button but which led do we use
+//    - what should init do? is the i2c init for the pic or for the ic
+ * 
+//    - what is final goal to show? which LED is heartbeat and which is button on and off
+ * 
+//    - only hooking up scl, sda, reset to mclr, vss, and vdd. other than button and led, no other sp0 pins right?
+ * 
 //    - how do we set the internal pull up resistor
-        
+ * 
+//    - should the blink have a delay?
+ * 
+//    - where do i specify which one is my sda pin
+ * 
+ */

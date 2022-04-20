@@ -5,7 +5,7 @@
 
 #include <xc.h>
 
-#define ADDRESS 0100100 //from datasheet format, pg 8 datasheet
+#define ADDRESS 0b0100100 //from datasheet format, pg 8 datasheet
 #define IODIR   0x00   //initing, values from page 6 on data sheet
 #define GPIO    0x09
 #define OLAT    0x0A    //turn on pins
