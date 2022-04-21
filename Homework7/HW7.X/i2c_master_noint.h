@@ -18,5 +18,7 @@ void i2c_master_send(unsigned char byte); // send a byte (either an address or d
 unsigned char i2c_master_recv(void); // receive a byte of data
 void i2c_master_ack(int val); // send an ACK (0) or NACK (1)
 void i2c_master_stop(void); // send a stop
+void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send);
+unsigned char Read_Message_I2C(unsigned char address, unsigned char reg);
 
 #endif

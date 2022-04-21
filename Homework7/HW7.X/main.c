@@ -41,7 +41,6 @@ void PIC_INIT();
 unsigned short Convertto16bit(char channel, unsigned char v);
 void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send);
 unsigned char Read_Message_I2C(unsigned char address, unsigned char reg);
-void blink_LED();
 
 //global vars
 int button_val = 0;
@@ -50,28 +49,9 @@ void main() {
     //keep pic init, A4, B4, UART
     PIC_INIT();
     UART1_INIT();
-    i2c_master_setup();
-
-    //init mcp23008 with gp7 as output and gp0 as input, both are LSB and MSB of GPIO
-    //write to init
-    Write_Message_I2C(ADDRESS, IODIR, 0b00000001);
-    //same gppu to set button pull up (change to gppu)
-    Write_Message_I2C(ADDRESS, GPPU, 0b00000001);
-//    Write_Message_I2C(ADDRESS, OLAT, 0b10000000);
-
+    init_mpu6050();
+    
     while (1) {
-        blink_LED();
-//            Write_Message_I2C(ADDRESS, OLAT, 0b10000000);
-
-        //read from gpio
-                unsigned char gpio_status = Read_Message_I2C(ADDRESS, GPIO);
-                if ((gpio_status & 0b00000001) == 0b0) {
-                    Write_Message_I2C(ADDRESS, OLAT, (0b10000000));
-                } else{ 
-                    Write_Message_I2C(ADDRESS, OLAT, (0b00000000));                    
-                }
-        //check if button is pushed
-        //if so, turn on b4
 
     }
 }
@@ -100,66 +80,7 @@ void PIC_INIT() {
     LATAbits.LATA4 = 0;
 }
 
-unsigned short Convertto16bit(char channel, unsigned char voltage) {
-    unsigned short s = 0;
 
-    s = s | (channel << 15);
-    s = s | (0b111 << 12);
-    s = s | (voltage << 4);
 
-    return s;
-}
 
-void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send) {
-    //send start bit
-    i2c_master_start();
-    //write the address with a write or read bit 
-    i2c_master_send(address << 1);
-    //write register to change
-    i2c_master_send(reg);
-    //write value to change to
-    i2c_master_send(to_send);
-    //send stop bit to end communication
-    i2c_master_stop();
-}
 
-unsigned char Read_Message_I2C(unsigned char address, unsigned char reg) {
-    //send start bit
-    i2c_master_start();
-    //write the address with a write or read bit 
-    i2c_master_send(address << 1);
-    //write register to change
-    i2c_master_send(reg);
-    //reset i2c
-    i2c_master_restart();
-    i2c_master_send(address << 1 | 0b1); //to read
-    unsigned char ret = i2c_master_recv();
-    i2c_master_ack(1);
-    i2c_master_stop();
-
-    return ret;
-}
-
-void blink_LED() {
-    LATAbits.LATA4 = !button_val;
-    button_val = !button_val;
-    int i = 0;
-    for (i = 0; i < 1000000; i++) {
-        ;
-    }
-    //    Write_Message_I2C(ADDRESS, GPIO, (!button_val<<7));
-    //    Write_Message_I2C(ADDRESS, GPIO, (0b10000000));
-
-}
-
-/*
-//questions for oh:
-//    - what should init do? is the i2c init for the pic or for the ic
- * 
-//    - what is final goal to show? which LED is heartbeat and which is button on and off
- * 
-//    - should the blink have a delay?
- * 
-//    - where do i specify which one is my sda pin
- * 
- */

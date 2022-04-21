@@ -58,3 +58,33 @@ void i2c_master_stop(void) { // send a STOP:
         ;
     } // wait for STOP to complete
 }
+
+void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send) {
+    //send start bit
+    i2c_master_start();
+    //write the address with a write or read bit 
+    i2c_master_send(address << 1);
+    //write register to change
+    i2c_master_send(reg);
+    //write value to change to
+    i2c_master_send(to_send);
+    //send stop bit to end communication
+    i2c_master_stop();
+}
+
+unsigned char Read_Message_I2C(unsigned char address, unsigned char reg) {
+    //send start bit
+    i2c_master_start();
+    //write the address with a write or read bit 
+    i2c_master_send(address << 1);
+    //write register to change
+    i2c_master_send(reg);
+    //reset i2c
+    i2c_master_restart();
+    i2c_master_send(address << 1 | 0b1); //to read
+    unsigned char ret = i2c_master_recv();
+    i2c_master_ack(1);
+    i2c_master_stop();
+
+    return ret;
+}
