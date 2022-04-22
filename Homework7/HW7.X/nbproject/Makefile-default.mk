@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=UART.c i2c_master_noint.c mpu6050.c main.c
+SOURCEFILES_QUOTED_IF_SPACED=UART.c i2c_master_noint.c mpu6050.c main.c imu.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/UART.o ${OBJECTDIR}/i2c_master_noint.o ${OBJECTDIR}/mpu6050.o ${OBJECTDIR}/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/UART.o.d ${OBJECTDIR}/i2c_master_noint.o.d ${OBJECTDIR}/mpu6050.o.d ${OBJECTDIR}/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/UART.o ${OBJECTDIR}/i2c_master_noint.o ${OBJECTDIR}/mpu6050.o ${OBJECTDIR}/main.o ${OBJECTDIR}/imu.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/UART.o.d ${OBJECTDIR}/i2c_master_noint.o.d ${OBJECTDIR}/mpu6050.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/imu.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/UART.o ${OBJECTDIR}/i2c_master_noint.o ${OBJECTDIR}/mpu6050.o ${OBJECTDIR}/main.o
+OBJECTFILES=${OBJECTDIR}/UART.o ${OBJECTDIR}/i2c_master_noint.o ${OBJECTDIR}/mpu6050.o ${OBJECTDIR}/main.o ${OBJECTDIR}/imu.o
 
 # Source Files
-SOURCEFILES=UART.c i2c_master_noint.c mpu6050.c main.c
+SOURCEFILES=UART.c i2c_master_noint.c mpu6050.c main.c imu.c
 
 
 
@@ -131,6 +131,12 @@ ${OBJECTDIR}/main.o: main.c  .generated_files/2390addb81d5a9ade75caaee449366e1bf
 	@${RM} ${OBJECTDIR}/main.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/main.o.d" -o ${OBJECTDIR}/main.o main.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/imu.o: imu.c  .generated_files/841ab111c61351566d68f49780cab4ff8449f2fa.flag .generated_files/35b059e026b463500ba6e17fe172f881244224c5.flag
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/imu.o.d 
+	@${RM} ${OBJECTDIR}/imu.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/imu.o.d" -o ${OBJECTDIR}/imu.o imu.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/UART.o: UART.c  .generated_files/5c0673b072c7b887bfdfc42098c4dc97bd632427.flag .generated_files/35b059e026b463500ba6e17fe172f881244224c5.flag
 	@${MKDIR} "${OBJECTDIR}" 
@@ -155,6 +161,12 @@ ${OBJECTDIR}/main.o: main.c  .generated_files/95968ad8c31d879a439745ae09f66808d4
 	@${RM} ${OBJECTDIR}/main.o.d 
 	@${RM} ${OBJECTDIR}/main.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/main.o.d" -o ${OBJECTDIR}/main.o main.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/imu.o: imu.c  .generated_files/8a4d17e5582b027d6489e54cf9cede74810658b9.flag .generated_files/35b059e026b463500ba6e17fe172f881244224c5.flag
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/imu.o.d 
+	@${RM} ${OBJECTDIR}/imu.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/imu.o.d" -o ${OBJECTDIR}/imu.o imu.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

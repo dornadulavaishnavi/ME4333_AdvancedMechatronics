@@ -38,9 +38,8 @@
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
 
 void PIC_INIT();
+void blink();
 unsigned short Convertto16bit(char channel, unsigned char v);
-void Write_Message_I2C(unsigned char address, unsigned char reg, unsigned char to_send);
-unsigned char Read_Message_I2C(unsigned char address, unsigned char reg);
 
 //global vars
 int button_val = 0;
@@ -49,10 +48,25 @@ void main() {
     //keep pic init, A4, B4, UART
     PIC_INIT();
     UART1_INIT();
-    init_mpu6050();
-    
-    while (1) {
+    //below done in init_mpu6050
+    //turn on the chip by writing to PWR_MGMT
+    //turn on accelerometer by writing to ACCEL_CONFIG and change sensitivity to +- 2g
+    //turn on gyroscope by writing to GYRO_CONFIG and set sensitivity to +- 2000 dps
+    init_mpu6050(); //inits i2c
 
+    //check that who am 1 register contains 0x68
+    //if wrong value, go into infinite while loop with led on to indicate power reset
+        
+    while (1) {
+        //add heartbeat
+        blink();
+        //use burst_read_I2C1() to read all data from chip
+        
+        //complementary filter process the pitch and roll
+        
+        //output (sprintf and write to uart)
+        
+        //delay by dt
     }
 }
 
@@ -80,6 +94,26 @@ void PIC_INIT() {
     LATAbits.LATA4 = 0;
 }
 
+void blink(){
+    LATAbits.LATA4 = 1;
+    _CP0_SET_COUNT(0);
+    while(_CP0_GET_COUNT()<24000000/2/20){}
+    LATAbits.LATA4 = 0;
+    _CP0_SET_COUNT(0);
+    while(_CP0_GET_COUNT()<24000000/2/20){}
+}
+
+//Void comp_filter(uint8_t *imu_buf, float *pitch, float *roll
+//Convert that array data to gs and dps(impu_buf)
+//Ax = conv_x_accel(imu_buf)
+//Should be ~1 or -1 when lying flat
+//Repeat for y and z
+//Repeat for gyro_x and y
+//Do trig to get pitch and roll using atan2f from accel data
+//Pitch is a ?return? but pointer because also need to ?return? roll
+//*pitch += gyro_x * dt
+//*pitch = A*theta_accel + (1-A)*pitch
+//Repeat d and e for roll
 
 
 
