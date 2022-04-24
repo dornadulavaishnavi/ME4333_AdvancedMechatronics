@@ -61,6 +61,8 @@ void main() {
     int i;
     float pitch = 0;
     float roll = 0;
+    float theta_accel;
+    float phi_accel;
 
     //check that who am 1 register contains 0x68
     //if wrong value, go into infinite while loop with led on to indicate power reset
@@ -72,33 +74,73 @@ void main() {
         }
     }
 
+#define NUM_DATA_PNTS 300 // how many data points to collect at 100Hz
+    float ax[NUM_DATA_PNTS], ay[NUM_DATA_PNTS], az[NUM_DATA_PNTS], gx[NUM_DATA_PNTS], gy[NUM_DATA_PNTS], gz[NUM_DATA_PNTS], temp[NUM_DATA_PNTS];
+    char IMU_buf[IMU_ARRAY_LEN]; // raw 8 bit array for imu data
+
+
     while (1) {
         //add heartbeat
         blink();
 
         NU32_ReadUART1(m_in, 100); // wait for a newline
         // don't actually have to use what is in m
-        
-        blink();
+
         // collect data
-        for (i = 0; i < NUM_DATA_POINTS; i++) {
+        for (i = 0; i < NUM_DATA_PNTS; i++) {
             _CP0_SET_COUNT(0);
-            //use burst_read_I2C1() to read all data from chip
-            burst_read_mpu6050(imu_buf);
+            // read IMU
+            burst_read_mpu6050(IMU_buf);
+            ax[i] = conv_xXL(IMU_buf);
+            ay[i] = conv_yXL(IMU_buf);
+            az[i] = conv_zXL(IMU_buf);
+            gx[i] = conv_xG(IMU_buf);
+            gy[i] = conv_yG(IMU_buf);
+            gz[i] = conv_zG(IMU_buf);
+            temp[i] = conv_temp(IMU_buf);
+
+            theta_accel = atan2f(ax[i], az[i]); //roll
+            phi_accel = atan2f(ay[i], az[i]);   //pitch
+
+            pitch += gy[i] * dt;
+            pitch = A * phi_accel + (1 - A)*(pitch);
+            roll += gx[i] * dt;
+            roll = A * theta_accel + (1 - A)*(roll);
             
-            //complementary filter process the pitch and roll
-            comp_filter(imu_buf, &pitch, &roll);
-            
-            //output (sprintf and write to uart)
-            sprintf(m_out,"%d %f %f\r\n",i, pitch, roll);
+//            sprintf(m_out, "%d %f %f %f %f %f %f %f\r\n", NUM_DATA_PNTS - i, ax[i], ay[i], az[i], gx[i], gy[i], gz[i], temp[i]);
+            sprintf(m_out,"%d %f %f %f %f %f\r\n",i, ax[i], ay[i], az[i], phi_accel, theta_accel);
             NU32_WriteUART1(m_out);
-            
-            //delay by dt
-            while (_CP0_GET_COUNT() < dt) {
+
+            while (_CP0_GET_COUNT() < 24000000 / 2 / 100) {
             }
         }
-        blink();
-        
+
+        // print data
+        //        for (i = 0; i < NUM_DATA_PNTS; i++) {
+        //            sprintf(m_out, "%d %f %f %f %f %f %f %f\r\n", NUM_DATA_PNTS - i, ax[i], ay[i], az[i], gx[i], gy[i], gz[i], temp[i]);
+        //            NU32_WriteUART1(m_out);
+        //        }
+
+        //        blink();
+        //        // collect data
+        //        for (i = 0; i < NUM_DATA_POINTS; i++) {
+        //            _CP0_SET_COUNT(0);
+        //            //use burst_read_I2C1() to read all data from chip
+        //            burst_read_mpu6050(imu_buf);
+        //            
+        //            //complementary filter process the pitch and roll
+        //            comp_filter(imu_buf, &pitch, &roll);
+        //            
+        //            //output (sprintf and write to uart)
+        //            sprintf(m_out,"%d %f %f\r\n",i, pitch, roll);
+        ////            NU32_WriteUART1(m_out);
+        //            
+        //            //delay by dt
+        //            while (_CP0_GET_COUNT() < dt) {
+        //            }
+        //        }
+        //        blink();
+
     }
 }
 

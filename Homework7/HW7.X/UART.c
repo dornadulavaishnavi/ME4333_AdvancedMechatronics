@@ -8,12 +8,14 @@
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-#define NU32_DESIRED_BAUD 230400    // Baudrate for RS232
+//#define NU32_DESIRED_BAUD 230400    // Baudrate for RS232
 //#define NU32_SYS_FREQ 48000000
 
 /* ************************************************************************** */
 
 void UART1_INIT(void) {
+    // disable interrupts
+    __builtin_disable_interrupts();
     // turn on UART3 without an interrupt
     U1MODEbits.BRGH = 0; // set baud to NU32_DESIRED_BAUD
     U1BRG = ((NU32_SYS_FREQ / NU32_DESIRED_BAUD) / 16) - 1;
@@ -33,6 +35,8 @@ void UART1_INIT(void) {
 
     // enable the uart
     U1MODEbits.ON = 1;
+
+    __builtin_enable_interrupts();
 }
 
 void NU32_ReadUART1(char * message, int maxLength) {

@@ -5,7 +5,7 @@
 # sudo apt-get install python-matplotlib
 
 import serial
-ser = serial.Serial('COM5',230400)
+ser = serial.Serial('COM3',230400)
 print('Opening port: ')
 print(ser.name)
 
