@@ -5,6 +5,7 @@
 #include "mpu6050.h"
 #include "UART.h"
 #include "i2c_master_noint.h"
+#include "imu.h"
 
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
@@ -54,19 +55,50 @@ void main() {
     //turn on gyroscope by writing to GYRO_CONFIG and set sensitivity to +- 2000 dps
     init_mpu6050(); //inits i2c
 
+    char m_in[100]; // char array for uart data coming in
+    char m_out[200]; // char array for uart data going out
+    uint8_t imu_buf[NUM_DATA_POINTS];
+    int i;
+    float pitch = 0;
+    float roll = 0;
+
     //check that who am 1 register contains 0x68
     //if wrong value, go into infinite while loop with led on to indicate power reset
-        
+    char who = whoami(); // ask if the imu is there
+    if (who != 0x68) {
+        // if the imu is not there, get stuck here forever
+        while (1) {
+            LATAbits.LATA4 = 1;
+        }
+    }
+
     while (1) {
         //add heartbeat
         blink();
-        //use burst_read_I2C1() to read all data from chip
+
+        NU32_ReadUART1(m_in, 100); // wait for a newline
+        // don't actually have to use what is in m
         
-        //complementary filter process the pitch and roll
+        blink();
+        // collect data
+        for (i = 0; i < NUM_DATA_POINTS; i++) {
+            _CP0_SET_COUNT(0);
+            //use burst_read_I2C1() to read all data from chip
+            burst_read_mpu6050(imu_buf);
+            
+            //complementary filter process the pitch and roll
+            comp_filter(imu_buf, &pitch, &roll);
+            
+            //output (sprintf and write to uart)
+            sprintf(m_out,"%d %f %f\r\n",i, pitch, roll);
+            NU32_WriteUART1(m_out);
+            
+            //delay by dt
+            while (_CP0_GET_COUNT() < dt) {
+            }
+        }
+        blink();
         
-        //output (sprintf and write to uart)
-        
-        //delay by dt
     }
 }
 
@@ -94,13 +126,15 @@ void PIC_INIT() {
     LATAbits.LATA4 = 0;
 }
 
-void blink(){
+void blink() {
     LATAbits.LATA4 = 1;
     _CP0_SET_COUNT(0);
-    while(_CP0_GET_COUNT()<24000000/2/20){}
+    while (_CP0_GET_COUNT() < dt) {
+    }
     LATAbits.LATA4 = 0;
     _CP0_SET_COUNT(0);
-    while(_CP0_GET_COUNT()<24000000/2/20){}
+    while (_CP0_GET_COUNT() < dt) {
+    }
 }
 
 //Void comp_filter(uint8_t *imu_buf, float *pitch, float *roll
