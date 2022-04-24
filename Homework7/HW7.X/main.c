@@ -100,11 +100,11 @@ void main() {
             gz[i] = conv_zG(IMU_buf);
             temp[i] = conv_temp(IMU_buf);
 
-            theta_accel = atan2f(ax[i], az[i]); //roll
-            phi_accel = atan2f(ay[i], az[i]);   //pitch
+            theta_accel = atan2f(ax[i], az[i]); //roll acceleration
+            phi_accel = atan2f(ay[i], az[i]);   //pitch acceleration
 
 //            pitch += gy[i] * dt;
-            pitch = A * phi_accel + (1 - A)*((gy[i] * 0.1) + pitch);
+            pitch = A * phi_accel + (1 - A)*((gy[i] * 0.1) + pitch);    //complementary filter
 //            roll += gx[i] * dt;
             roll = A * theta_accel + (1 - A)*((gx[i] * 0.1) + roll);
             
@@ -113,10 +113,11 @@ void main() {
             sprintf(m_out,"%d %f %f\r\n",i, pitch, roll);
             NU32_WriteUART1(m_out);
 
-            while (_CP0_GET_COUNT() < 24000000 / 2 / 100) {
+            while (_CP0_GET_COUNT() < 24000000 / 2 / 100) { //delay
             }
         }
-
+        
+        //different approach
         // print data
         //        for (i = 0; i < NUM_DATA_PNTS; i++) {
         //            sprintf(m_out, "%d %f %f %f %f %f %f %f\r\n", NUM_DATA_PNTS - i, ax[i], ay[i], az[i], gx[i], gy[i], gz[i], temp[i]);
