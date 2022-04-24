@@ -38,6 +38,8 @@
 #pragma config PMDL1WAY = OFF // allow multiple reconfigurations
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
 
+#define NUM_DATA_PNTS 400 // how many data points to collect at 100Hz
+
 void PIC_INIT();
 void blink();
 unsigned short Convertto16bit(char channel, unsigned char v);
@@ -74,7 +76,6 @@ void main() {
         }
     }
 
-#define NUM_DATA_PNTS 300 // how many data points to collect at 100Hz
     float ax[NUM_DATA_PNTS], ay[NUM_DATA_PNTS], az[NUM_DATA_PNTS], gx[NUM_DATA_PNTS], gy[NUM_DATA_PNTS], gz[NUM_DATA_PNTS], temp[NUM_DATA_PNTS];
     char IMU_buf[IMU_ARRAY_LEN]; // raw 8 bit array for imu data
 
@@ -102,13 +103,14 @@ void main() {
             theta_accel = atan2f(ax[i], az[i]); //roll
             phi_accel = atan2f(ay[i], az[i]);   //pitch
 
-            pitch += gy[i] * dt;
-            pitch = A * phi_accel + (1 - A)*(pitch);
-            roll += gx[i] * dt;
-            roll = A * theta_accel + (1 - A)*(roll);
+//            pitch += gy[i] * dt;
+            pitch = A * phi_accel + (1 - A)*((gy[i] * 0.1) + pitch);
+//            roll += gx[i] * dt;
+            roll = A * theta_accel + (1 - A)*((gx[i] * 0.1) + roll);
             
 //            sprintf(m_out, "%d %f %f %f %f %f %f %f\r\n", NUM_DATA_PNTS - i, ax[i], ay[i], az[i], gx[i], gy[i], gz[i], temp[i]);
-            sprintf(m_out,"%d %f %f %f %f %f\r\n",i, ax[i], ay[i], az[i], phi_accel, theta_accel);
+//            sprintf(m_out,"%d %f %f %f %f %f %f %f\r\n",i, ax[i], ay[i], az[i], phi_accel, theta_accel, pitch, roll);
+            sprintf(m_out,"%d %f %f\r\n",i, pitch, roll);
             NU32_WriteUART1(m_out);
 
             while (_CP0_GET_COUNT() < 24000000 / 2 / 100) {
