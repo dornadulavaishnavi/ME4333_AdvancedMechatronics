@@ -3,6 +3,8 @@
 #include <string.h> // for memset
 #include <xc.h> // for the core timer delay
 #include "ssd1306.h"
+#include "font.h"
+#include "UART.h"
 
 unsigned char ssd1306_write = 0b01111000; // i2c address
 unsigned char ssd1306_read = 0b01111001; // i2c address
@@ -89,13 +91,23 @@ void ssd1306_clear() {
 }
 
 void ssd1306_DrawChar(unsigned char x, unsigned char y, char to_print){
-    int col, row;
+    int i, j;
+    char col, color;
+    char * test;
     //for each of the 5 columns
-    for(col=0; col<5; col++){
-    //get column of that char from ascii font table as an 8bit number
-    //for each row in that 8 bit number
-    //check if bottom bit is 1 or 0 buy & with 0b1
-    //use draw pixel function to control specific pixel
+    for(i=0; i<5; i++){
+        //get column of that char from ascii font table as an 8bit number
+        int pos = to_print-0x20;
+        col = ASCII[pos][i];
+//        sprintf(test, "%i \r\n", pos);
+//        NU32_WriteUART1(test);
+        //for each row in that 8 bit number
+        for(j=0;j<7;j++){
+            //check if bottom bit is 1 or 0 buy & with 0b1
+            color = (col>>j)&0b1;
+            //use draw pixel function to control specific pixel
+            ssd1306_drawPixel(x+i, y+j, color);
+        }
     }
 }
 

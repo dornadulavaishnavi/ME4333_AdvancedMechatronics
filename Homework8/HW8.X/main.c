@@ -65,7 +65,8 @@ void main() {
         blink();
         
         //check if one pixel can turn on first
-        ssd1306_drawPixel(0, 0, 1);
+//        ssd1306_drawPixel(0, 0, 1);
+        ssd1306_DrawChar(0, 0, test);
         ssd1306_update();
         // collect data        
 
