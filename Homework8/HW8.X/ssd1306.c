@@ -113,8 +113,8 @@ void ssd1306_DrawChar(unsigned char x, unsigned char y, char to_print){
 
 void ssd1306_DrawString(unsigned char x, unsigned char y, char *message){
     int i = 0;
-    while(message[i] != 0){
-        ssd1306_DrawChar(x+i*5, y, message[i]);
+    while(message[i] != 0){ //as long as it's not in the terminating character
+        ssd1306_DrawChar(x+i*5, y, message[i]); //use draw char to place message where we want
         i = i+1;
     }
 }

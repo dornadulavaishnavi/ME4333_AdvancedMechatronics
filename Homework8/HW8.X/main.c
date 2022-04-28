@@ -60,21 +60,22 @@ void main() {
     ssd1306_update();
         
     char test = 'b';
+    float i = 0.0;
+
     while (1) {
         //add heartbeat
-        blink();
+        blink();    //ensure that program is not held
         
         //check if one pixel can turn on first
 //        ssd1306_drawPixel(0, 0, 1);
 //        ssd1306_DrawChar(0, 0, test);
-        int i = 60;
         char m[50];
-        sprintf(m, "Hello World %d", i);
+        sprintf(m, "Hello World %f", i);    //make message to print
         _CP0_SET_COUNT(0);
         ssd1306_DrawString(0,0,m);
         ssd1306_update();
         // collect data        
-
+        i = 1200000.0/_CP0_GET_COUNT(); //frames per second calculated by seeing is 1 frame takes cpu get count then how many frames in 1200000 cpu counts which is 1 second
     }
 }
 
