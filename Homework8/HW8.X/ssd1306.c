@@ -112,5 +112,9 @@ void ssd1306_DrawChar(unsigned char x, unsigned char y, char to_print){
 }
 
 void ssd1306_DrawString(unsigned char x, unsigned char y, char *message){
-    
+    int i = 0;
+    while(message[i] != 0){
+        ssd1306_DrawChar(x+i*5, y, message[i]);
+        i = i+1;
+    }
 }

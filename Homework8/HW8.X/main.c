@@ -66,7 +66,12 @@ void main() {
         
         //check if one pixel can turn on first
 //        ssd1306_drawPixel(0, 0, 1);
-        ssd1306_DrawChar(0, 0, test);
+//        ssd1306_DrawChar(0, 0, test);
+        int i = 60;
+        char m[50];
+        sprintf(m, "Hello World %d", i);
+        _CP0_SET_COUNT(0);
+        ssd1306_DrawString(0,0,m);
         ssd1306_update();
         // collect data        
 
