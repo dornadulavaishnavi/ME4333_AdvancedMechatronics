@@ -59,7 +59,7 @@ void main() {
     ssd1306_clear();
     ssd1306_update();
         
-    char test = 'a';
+    char test = 'b';
     while (1) {
         //add heartbeat
         blink();
