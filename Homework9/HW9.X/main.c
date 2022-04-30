@@ -2,12 +2,8 @@
 #include <sys/attribs.h>  // __ISR macro
 #include <stdio.h>
 #include <math.h>
-#include "mpu6050.h"
 #include "UART.h"
-#include "i2c_master_noint.h"
-#include "imu.h"
-#include "ssd1306.h"
-#include "font.h"
+#include "ws2812b.h"
 
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
@@ -55,10 +51,26 @@ void main() {
     UART1_INIT();
     ws2812b_setup();
     
+    // declaring led array and individual variables
+    wsColor allLEDs[5]; 
+//    struct wsColor led_0;
+//    struct wsColor led_1;
+//    struct wsColor led_2;
+//    struct wsColor led_3;
+//    struct wsColor led_4;
+    
     while (1) {
         //add heartbeat
         blink(); //ensure that program is not held
-
+        //use HSBtoRGB to generate the color
+        //put all the structs into an array of structs to send
+        allLEDs[0] = HSBtoRGB(50, 0.5, 0.5);        
+        allLEDs[1] = HSBtoRGB(100, 0.5, 0.5);        
+        allLEDs[2] = HSBtoRGB(150, 0.5, 0.5);        
+        allLEDs[3] = HSBtoRGB(200, 0.5, 0.5);        
+        allLEDs[4] = HSBtoRGB(250, 0.5, 0.5);        
+        //send array to HSBtoRGB into ws2812b_setColor
+        ws2812b_setColor(allLEDs, 5);
     }
 }
 
@@ -89,11 +101,11 @@ void PIC_INIT() {
 void blink() {
     LATAbits.LATA4 = 1;
     _CP0_SET_COUNT(0);
-    while (_CP0_GET_COUNT() < dt) {
+    while (_CP0_GET_COUNT() <  24000000/2/20) {
     }
     LATAbits.LATA4 = 0;
     _CP0_SET_COUNT(0);
-    while (_CP0_GET_COUNT() < dt) {
+    while (_CP0_GET_COUNT() <  24000000/2/20) {
     }
 }
 
