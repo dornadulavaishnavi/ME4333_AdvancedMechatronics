@@ -5,14 +5,14 @@
 // other includes if necessary for debugging
 
 // Timer2 delay times, you can tune these if necessary
-#define LOWTIME 15 // number of 48MHz cycles to be low for 0.35uS
-#define HIGHTIME 65 // number of 48MHz cycles to be high for 1.65uS
+#define LOWTIME 5 //15 // number of 48MHz cycles to be low for 0.35uS
+#define HIGHTIME 50 //65 // number of 48MHz cycles to be high for 1.65uS
 
 char debugging[100];
-// setup Timer2 for 48MHz, and setup the output pin
 
+// setup Timer2 for 48MHz, and setup the output pin
 void ws2812b_setup() {
-    T2CONbits.TCKPS = 0; // Timer2 prescaler N=1 (1:1)
+    T2CONbits.TCKPS = 1; // Timer2 prescaler N=1 (1:1)
     PR2 = 65535; // maximum period
     TMR2 = 0; // initialize Timer2 to 0
     T2CONbits.ON = 1; // turn on Timer2
@@ -34,7 +34,7 @@ void ws2812b_setColor(wsColor * c, int numLEDs) {
     delay_times[0] = 0;
 
     int nB = 1; // which high/low bit you are storing, 2 per color bit, 24 color bits per WS2812B
-        sprintf(debugging, "in: %x, %x, %x\r\n", c[0].r, c[0].g, c[0].b);
+//        sprintf(debugging, "in: %x, %x, %x\r\n", c[0].r, c[0].g, c[0].b);
 //        NU32_WriteUART1(debugging);
 
     // loop through each WS2812B
@@ -68,7 +68,7 @@ void ws2812b_setColor(wsColor * c, int numLEDs) {
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
                 nB++;
                 
-                sprintf(debugging, "green in high\r\n");
+//                sprintf(debugging, "green in high\r\n");
 //                NU32_WriteUART1(debugging);
             }// if the bit is a 0
             else {
@@ -78,7 +78,7 @@ void ws2812b_setColor(wsColor * c, int numLEDs) {
                 delay_times[nB] = delay_times[nB - 1] + HIGHTIME;
                 nB++;
                 
-                sprintf(debugging, "green in low\r\n");
+//                sprintf(debugging, "green in low\r\n");
 //                NU32_WriteUART1(debugging);
             }
         }

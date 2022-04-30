@@ -36,8 +36,6 @@
 #pragma config PMDL1WAY = OFF // allow multiple reconfigurations
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
 
-#define NUM_DATA_PNTS 400 // how many data points to collect at 100Hz
-
 void PIC_INIT();
 void blink();
 unsigned short Convertto16bit(char channel, unsigned char v);
@@ -55,15 +53,18 @@ void main() {
     
     // declaring led array and individual variables
     wsColor allLEDs[5]; 
-//    struct wsColor led_0;
+    wsColor led_0;
+    led_0.r = 255;
+    led_0.g = 0;
+    led_0.b = 0;
 //    struct wsColor led_1;
 //    struct wsColor led_2;
 //    struct wsColor led_3;
 //    struct wsColor led_4;
     
-    float hue = 50;
+    float hue = 60;
     float inc = 50;
-    float sat = 0.5;
+    float sat = 1;
     float brightness = 0.2;
           
     while (1) {
@@ -72,14 +73,15 @@ void main() {
         //use HSBtoRGB to generate the color
         //put all the structs into an array of structs to send
         allLEDs[0] = HSBtoRGB(hue, sat, brightness); 
-        sprintf(debugging, "output: %x, %x, %x\r\n", allLEDs[0].r, allLEDs[0].g, allLEDs[0].b);
+//        sprintf(debugging, "output: %x, %x, %x\r\n", allLEDs[0].r, allLEDs[0].g, allLEDs[0].b);
 //        NU32_WriteUART1(debugging);
-//        allLEDs[1] = HSBtoRGB(hue+inc, sat, brightness);        
-//        allLEDs[2] = HSBtoRGB(hue+2*inc, sat, brightness);        
-//        allLEDs[3] = HSBtoRGB(hue+3*inc, sat, brightness);        
-//        allLEDs[4] = HSBtoRGB(hue+4*inc, sat, brightness);        
-        //send array to HSBtoRGB into ws2812b_setColor
+        allLEDs[1] = HSBtoRGB((hue+inc), sat, brightness);        
+        allLEDs[2] = HSBtoRGB((hue+2*inc), sat, brightness);        
+        allLEDs[3] = HSBtoRGB((hue+3*inc), sat, brightness);        
+        allLEDs[4] = HSBtoRGB((hue+4*inc), sat, brightness);        
+//        send array to HSBtoRGB into ws2812b_setColor
         ws2812b_setColor(allLEDs, 1);
+//        hue++;
     }
 }
 
