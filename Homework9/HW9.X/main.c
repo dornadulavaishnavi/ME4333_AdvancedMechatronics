@@ -51,6 +51,8 @@ void main() {
     UART1_INIT();
     ws2812b_setup();
     
+    char debugging[100];
+    
     // declaring led array and individual variables
     wsColor allLEDs[5]; 
 //    struct wsColor led_0;
@@ -59,18 +61,25 @@ void main() {
 //    struct wsColor led_3;
 //    struct wsColor led_4;
     
+    float hue = 50;
+    float inc = 50;
+    float sat = 0.5;
+    float brightness = 0.2;
+          
     while (1) {
         //add heartbeat
         blink(); //ensure that program is not held
         //use HSBtoRGB to generate the color
         //put all the structs into an array of structs to send
-        allLEDs[0] = HSBtoRGB(50, 0.5, 0.5);        
-        allLEDs[1] = HSBtoRGB(100, 0.5, 0.5);        
-        allLEDs[2] = HSBtoRGB(150, 0.5, 0.5);        
-        allLEDs[3] = HSBtoRGB(200, 0.5, 0.5);        
-        allLEDs[4] = HSBtoRGB(250, 0.5, 0.5);        
+        allLEDs[0] = HSBtoRGB(hue, sat, brightness); 
+        sprintf(debugging, "output: %x, %x, %x\r\n", allLEDs[0].r, allLEDs[0].g, allLEDs[0].b);
+//        NU32_WriteUART1(debugging);
+//        allLEDs[1] = HSBtoRGB(hue+inc, sat, brightness);        
+//        allLEDs[2] = HSBtoRGB(hue+2*inc, sat, brightness);        
+//        allLEDs[3] = HSBtoRGB(hue+3*inc, sat, brightness);        
+//        allLEDs[4] = HSBtoRGB(hue+4*inc, sat, brightness);        
         //send array to HSBtoRGB into ws2812b_setColor
-        ws2812b_setColor(allLEDs, 5);
+        ws2812b_setColor(allLEDs, 1);
     }
 }
 

@@ -1,13 +1,16 @@
 // WS2812B library
 
 #include "ws2812b.h"
+#include "UART.h"
 // other includes if necessary for debugging
 
 // Timer2 delay times, you can tune these if necessary
 #define LOWTIME 15 // number of 48MHz cycles to be low for 0.35uS
 #define HIGHTIME 65 // number of 48MHz cycles to be high for 1.65uS
 
+char debugging[100];
 // setup Timer2 for 48MHz, and setup the output pin
+
 void ws2812b_setup() {
     T2CONbits.TCKPS = 0; // Timer2 prescaler N=1 (1:1)
     PR2 = 65535; // maximum period
@@ -15,34 +18,38 @@ void ws2812b_setup() {
     T2CONbits.ON = 1; // turn on Timer2
 
     // initialize output pin as off
-     TRISBbits.TRISB6 = 0;
-     LATBbits.LATB6 = 0;
+    TRISBbits.TRISB6 = 0;
+    LATBbits.LATB6 = 0;
 }
 
 // build an array of high/low times from the color input array, then output the high/low bits
+
 void ws2812b_setColor(wsColor * c, int numLEDs) {
-    int i = 0; int j = 0; // for loops
+    int i = 0;
+    int j = 0; // for loops
     int numBits = 2 * 3 * 8 * numLEDs; // the number of high/low bits to store, 2 per color bit
-    volatile unsigned int delay_times[2*3*8 * 5]; // I only gave you 5 WS2812B, adjust this if you get more somewhere
+    volatile unsigned int delay_times[2 * 3 * 8 * 5]; // I only gave you 5 WS2812B, adjust this if you get more somewhere
 
     // start at time at 0
     delay_times[0] = 0;
-    
+
     int nB = 1; // which high/low bit you are storing, 2 per color bit, 24 color bits per WS2812B
-	
+        sprintf(debugging, "in: %x, %x, %x\r\n", c[0].r, c[0].g, c[0].b);
+//        NU32_WriteUART1(debugging);
+
     // loop through each WS2812B
     for (i = 0; i < numLEDs; i++) {
         // loop through each color bit, MSB first
         for (j = 7; j >= 0; j--) {
             // if the bit is a 1
-            if ((c[i].r<<j) & (0b10000000) /* identify the bit in c[].r, is it 1 */) {
+            if (((c[i].r >> j) & (0b1)) == 1) { /* identify the bit in c[].r, is it 1 */
                 // the high is longer
                 delay_times[nB] = delay_times[nB - 1] + HIGHTIME;
                 nB++;
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
                 nB++;
-            } 
-            // if the bit is a 0
+
+            }// if the bit is a 0
             else {
                 // the low is longer
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
@@ -54,33 +61,37 @@ void ws2812b_setColor(wsColor * c, int numLEDs) {
         // do it again for green
         for (j = 7; j >= 0; j--) {
             // if the bit is a 1
-            if ((c[i].g<<j) & (0b10000000) /* identify the bit in c[].r, is it 1 */) {
+            if (((c[i].g >> j) & (0b1)) == 1 /* identify the bit in c[].r, is it 1 */) {
                 // the high is longer
                 delay_times[nB] = delay_times[nB - 1] + HIGHTIME;
                 nB++;
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
                 nB++;
-            } 
-            // if the bit is a 0
+                
+                sprintf(debugging, "green in high\r\n");
+//                NU32_WriteUART1(debugging);
+            }// if the bit is a 0
             else {
                 // the low is longer
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
                 nB++;
                 delay_times[nB] = delay_times[nB - 1] + HIGHTIME;
                 nB++;
+                
+                sprintf(debugging, "green in low\r\n");
+//                NU32_WriteUART1(debugging);
             }
         }
-		// do it again for blue
+        // do it again for blue
         for (j = 7; j >= 0; j--) {
             // if the bit is a 1
-            if ((c[i].b<<j) & (0b10000000) /* identify the bit in c[].r, is it 1 */) {
+            if (((c[i].b >> j) & (0b1)) == 1 /* identify the bit in c[].r, is it 1 */) {
                 // the high is longer
                 delay_times[nB] = delay_times[nB - 1] + HIGHTIME;
                 nB++;
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
                 nB++;
-            } 
-            // if the bit is a 0
+            }// if the bit is a 0
             else {
                 // the low is longer
                 delay_times[nB] = delay_times[nB - 1] + LOWTIME;
@@ -101,14 +112,17 @@ void ws2812b_setColor(wsColor * c, int numLEDs) {
     }
     LATBbits.LATB6 = 0;
     TMR2 = 0;
-    while(TMR2 < 2400){} // wait 50uS, reset condition
+    while (TMR2 < 2400) {
+    } // wait 50uS, reset condition
 }
 
 // adapted from https://forum.arduino.cc/index.php?topic=8498.0
 // hue is a number from 0 to 360 that describes a color on the color wheel
 // sat is the saturation level, from 0 to 1, where 1 is full color and 0 is gray
 // brightness sets the maximum brightness, from 0 to 1
+
 wsColor HSBtoRGB(float hue, float sat, float brightness) {
+
     float red = 0.0;
     float green = 0.0;
     float blue = 0.0;
@@ -176,5 +190,7 @@ wsColor HSBtoRGB(float hue, float sat, float brightness) {
     c.r = ired;
     c.g = igreen;
     c.b = iblue;
+    //    sprintf(debugging, "output: %x, %x, %x\r\n", c.r, c.g, c.b);
+    //    NU32_WriteUART1(debugging);
     return c;
 }
