@@ -62,8 +62,8 @@ void main() {
 //    struct wsColor led_3;
 //    struct wsColor led_4;
     
-    float hue = 60;
-    float inc = 50;
+    float hue = 0;
+    float inc = 60;
     float sat = 1;
     float brightness = 0.2;
           
@@ -80,7 +80,7 @@ void main() {
         allLEDs[3] = HSBtoRGB((hue+3*inc), sat, brightness);        
         allLEDs[4] = HSBtoRGB((hue+4*inc), sat, brightness);        
 //        send array to HSBtoRGB into ws2812b_setColor
-        ws2812b_setColor(allLEDs, 1);
+        ws2812b_setColor(allLEDs, 5);
 //        hue++;
     }
 }
