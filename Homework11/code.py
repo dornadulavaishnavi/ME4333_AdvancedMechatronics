@@ -1,15 +1,16 @@
 import board
-from adafruit_ov7670 import (  # pylint: disable=unused-import
+from adafruit_ov7670 import (
     OV7670,
-    OV7670_SIZE_DIV8, # 80x60 image
+    OV7670_SIZE_DIV16,
     OV7670_COLOR_YUV,
+    OV7670_TEST_PATTERN_COLOR_BAR,
 )
 
 import sys
 import time
-
 import digitalio
 import busio
+from ulab import numpy as np
 
 with digitalio.DigitalInOut(board.GP10) as reset:
     reset.switch_to_output(False)
@@ -40,29 +41,66 @@ pid = cam.product_id
 ver = cam.product_version
 #print(f"Detected pid={pid:x} ver={ver:x}")
 
-cam.size = OV7670_SIZE_DIV8
+cam.size = OV7670_SIZE_DIV16
 #print(cam.width)
-#print(cam.height)
+##print(cam.height)
+
+#cam.test_pattern = OV7670_TEST_PATTERN_COLOR_BAR
 
 cam.colorspace = OV7670_COLOR_YUV
 cam.flip_y = True
 
-buf = bytearray(2 * cam.width * cam.height)
-chars = b" .:-=+*#%@"
+buf = bytearray(2 * cam.width * cam.height) # where all the raw data is stored
 
-width = cam.width
-row = bytearray(2 * width)
+# store the converted pixel data
+red = np.linspace(1,1,cam.width * cam.height, dtype=np.float)
+green = np.linspace(0,0,cam.width * cam.height, dtype=np.float)
+blue = np.linspace(0,0,cam.width * cam.height, dtype=np.float)
+ind = 0
 
-sys.stdout.write("\033[2J")
 while True:
-    cam.capture(buf)
-    for j in range(cam.height):
-        sys.stdout.write(f"\033[{j}H")
-        for i in range(cam.width):
-            row[i * 2] = row[i * 2 + 1] = chars[
-                buf[2 * (width * j + i)] * (len(chars) - 1) // 255
-            ]
-        sys.stdout.write(row)
-        sys.stdout.write("\033[K")
-    sys.stdout.write("\033[J")
-    time.sleep(0.05)
+    sys.stdin.readline() # wait for a newline before taking an image
+    cam.capture(buf) # get the image
+
+    # process the raw data into color pixels
+    ind = 0
+    for d in range(0,2 * cam.width * cam.height,4):
+        u = buf[d+1] - 128
+        v = buf[d+3] - 128
+        red[ind] = buf[d] + 1.370705 * v
+        if red[ind] > 255:
+            red[ind] = 255
+        if red[ind] < 0:
+            red[ind] = 0
+        green[ind] = buf[d] - 0.337633 * u - 0.698001 * v
+        if green[ind] > 255:
+            green[ind] = 255
+        if green[ind] < 0:
+            green[ind] = 0
+        blue[ind] = buf[d] + 1.732446 * u
+        if blue[ind] > 255:
+            blue[ind] = 255
+        if blue[ind] < 0:
+            blue[ind] = 0
+
+        ind = ind+1
+        red[ind] = buf[d+2] + 1.370705 * v
+        if red[ind] > 255:
+            red[ind] = 255
+        if red[ind] < 0:
+            red[ind] = 0
+        green[ind] = buf[d+2] - 0.337633 * u - 0.698001 * v
+        if green[ind] > 255:
+            green[ind] = 255
+        if green[ind] < 0:
+            green[ind] = 0
+        blue[ind] = buf[d+2] + 1.732446 * u
+        if blue[ind] > 255:
+            blue[ind] = 255
+        if blue[ind] < 0:
+            blue[ind] = 0
+        ind=ind+1
+
+    # send the color data as index red green blue
+    for c in range(red.size):
+        print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
