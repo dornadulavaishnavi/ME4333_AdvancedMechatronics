@@ -69,7 +69,7 @@ while True:
         v = buf[d+3] - 128
 
         red[ind] = buf[d]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             red[ind] = buf[d] + 1.370705 * v
         if red[ind] > 255:
             red[ind] = 255
@@ -77,7 +77,7 @@ while True:
             red[ind] = 0
 
         green[ind] = buf[d]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             green[ind] = buf[d] - 0.337633 * u - 0.698001 * v
         if green[ind] > 255:
             green[ind] = 255
@@ -85,7 +85,7 @@ while True:
             green[ind] = 0
 
         blue[ind] = buf[d]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             blue[ind] = buf[d] + 1.732446 * u
         if blue[ind] > 255:
             blue[ind] = 255
@@ -94,7 +94,7 @@ while True:
 
         ind = ind+1
         red[ind] = buf[d+2]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             red[ind] = buf[d+2] + 1.370705 * v
         if red[ind] > 255:
             red[ind] = 255
@@ -102,7 +102,7 @@ while True:
             red[ind] = 0
 
         green[ind] = buf[d+2]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             green[ind] = buf[d+2] - 0.337633 * u - 0.698001 * v
         if green[ind] > 255:
             green[ind] = 255
@@ -110,7 +110,7 @@ while True:
             green[ind] = 0
 
         blue[ind] = buf[d+2]
-        if ind > (400): #or ind == 14 or ind == 21:
+        if ind > (40*7) and ind < (40*8): #or ind == 14 or ind == 21:
             blue[ind] = buf[d+2] + 1.732446 * u
         if blue[ind] > 255:
             blue[ind] = 255
