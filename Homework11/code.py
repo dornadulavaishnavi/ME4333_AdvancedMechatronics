@@ -67,34 +67,51 @@ while True:
     for d in range(0,2 * cam.width * cam.height,4):
         u = buf[d+1] - 128
         v = buf[d+3] - 128
-        red[ind] = buf[d] + 1.370705 * v
+
+        red[ind] = buf[d]
+        if d == 7 or d == 14 or d == 21:
+            red[ind] = buf[d] + 1.370705 * v
         if red[ind] > 255:
             red[ind] = 255
         if red[ind] < 0:
             red[ind] = 0
-        green[ind] = buf[d] - 0.337633 * u - 0.698001 * v
+
+        green[ind] = buf[d]
+        if d == 7 or d == 14 or d == 21:
+            green[ind] = buf[d] - 0.337633 * u - 0.698001 * v
         if green[ind] > 255:
             green[ind] = 255
         if green[ind] < 0:
             green[ind] = 0
-        blue[ind] = buf[d] + 1.732446 * u
+
+        blue[ind] = buf[d]
+        if d == 7 or d == 14 or d == 21:
+            blue[ind] = buf[d] + 1.732446 * u
         if blue[ind] > 255:
             blue[ind] = 255
         if blue[ind] < 0:
             blue[ind] = 0
 
         ind = ind+1
-        red[ind] = buf[d+2] + 1.370705 * v
+        red[ind] = buf[d+2]
+        if d == 7 or d == 14 or d == 21:
+            red[ind] = buf[d+2] + 1.370705 * v
         if red[ind] > 255:
             red[ind] = 255
         if red[ind] < 0:
             red[ind] = 0
-        green[ind] = buf[d+2] - 0.337633 * u - 0.698001 * v
+
+        green[ind] = buf[d+2]
+        if d == 7 or d == 14 or d == 21:
+            green[ind] = buf[d+2] - 0.337633 * u - 0.698001 * v
         if green[ind] > 255:
             green[ind] = 255
         if green[ind] < 0:
             green[ind] = 0
-        blue[ind] = buf[d+2] + 1.732446 * u
+
+        blue[ind] = buf[d+2]
+        if d == 7 or d == 14 or d == 21:
+            blue[ind] = buf[d+2] + 1.732446 * u
         if blue[ind] > 255:
             blue[ind] = 255
         if blue[ind] < 0:
