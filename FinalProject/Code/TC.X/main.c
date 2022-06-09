@@ -43,12 +43,12 @@ void main() {
     init_Timer3();
 
     while (1) {
-                LATBbits.LATB12 = 0;
-                LATBbits.LATB13 = 1;
-                LATBbits.LATB14 = 0;
-                LATBbits.LATB15 = 1;
-//        OC1RS = 1999;
-//        LATBbits.LATB14 = 0;
+        //                LATBbits.LATB12 = 0;
+        //                LATBbits.LATB13 = 1;
+        //                LATBbits.LATB14 = 0;
+        //                LATBbits.LATB15 = 1;
+        OC1RS = 1999;
+        LATBbits.LATB14 = 0;
     }
 }
 
