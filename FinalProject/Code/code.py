@@ -17,7 +17,7 @@ with digitalio.DigitalInOut(board.GP10) as reset:
     time.sleep(0.001)
     bus = busio.I2C(scl=board.GP5, sda=board.GP4)
 
-threshold_path = 256
+threshold_path = 100
 motor_straight = 127
 
 cam = OV7670(
@@ -138,7 +138,7 @@ while True:
             blue[ind] = 0
 
         avg_color = (red[ind]+green[ind]+blue[ind])/3
-        if avg_color < threshold_path:  #for each pixel, check if dark
+        if avg_color < threshold_path:  #for each pixel, check if dark (pitch dark is about 30)
             threshold_counter += 1
         if (loop_count%40) == 0: #for each row
             if threshold_counter > 29: #if 3/4 of image is dark, then take that as the path
@@ -152,6 +152,11 @@ while True:
         loop_count += 1
 
     #calculate center row of dark area
+
+    # send the color data as index red green blue
+    for c in range(red.size):
+        print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
+
     center_row =  row_sum/count_path
 
     p_error = 15-center_row
@@ -162,7 +167,3 @@ while True:
         print(f"right " ,center_row, count_path)
     else:
         print(f"straight " ,center_row)
-
-    # send the color data as index red green blue
-    # for c in range(red.size):
-#         print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
