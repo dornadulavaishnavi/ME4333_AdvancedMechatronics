@@ -17,7 +17,7 @@ with digitalio.DigitalInOut(board.GP10) as reset:
     time.sleep(0.001)
     bus = busio.I2C(scl=board.GP5, sda=board.GP4)
 
-threshold_path = 100
+threshold_path = 160
 motor_straight = 127
 
 cam = OV7670(
@@ -141,9 +141,10 @@ while True:
         if avg_color < threshold_path:  #for each pixel, check if dark (pitch dark is about 30)
             threshold_counter += 1
         if (loop_count%40) == 0: #for each row
-            if threshold_counter > 29: #if 3/4 of image is dark, then take that as the path
-                row_sum += row_number
-                count_path += 1
+            if threshold_counter > 20: #if 3/4 of image is dark, then take that as the path
+                if row_number > 1:
+                    row_sum += row_number
+                    count_path += 1
 #             print(threshold_counter, row_number)
             threshold_counter = 0
             row_number += 1
@@ -161,9 +162,9 @@ while True:
 
     p_error = 15-center_row
 
-    if p_error < -5:
+    if p_error < -2:
+        print(f"right " ,center_row)    #turn to the right
+    elif p_error > 2:
         print(f"left " ,center_row)
-    elif p_error > 5:
-        print(f"right " ,center_row, count_path)
     else:
         print(f"straight " ,center_row)
