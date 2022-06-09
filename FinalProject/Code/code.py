@@ -17,6 +17,9 @@ with digitalio.DigitalInOut(board.GP10) as reset:
     time.sleep(0.001)
     bus = busio.I2C(scl=board.GP5, sda=board.GP4)
 
+threshold_path = 256
+motor_straight = 127
+
 cam = OV7670(
     bus,
     data_pins=[
@@ -42,8 +45,8 @@ ver = cam.product_version
 #print(f"Detected pid={pid:x} ver={ver:x}")
 
 cam.size = OV7670_SIZE_DIV16
-#print(cam.width)
-##print(cam.height)
+#print(cam.width)    #40
+#print(cam.height)   #30
 
 #cam.test_pattern = OV7670_TEST_PATTERN_COLOR_BAR
 
@@ -64,6 +67,11 @@ while True:
 
     # process the raw data into color pixels
     ind = 0
+    row_sum = 0
+    count_path = 0
+    loop_count = 1
+    row_number = 1
+    threshold_counter = 0
     for d in range(0,2 * cam.width * cam.height,4):
         u = buf[d+1] - 128
         v = buf[d+3] - 128
@@ -92,6 +100,18 @@ while True:
         if blue[ind] < 0:
             blue[ind] = 0
 
+        avg_color = (red[ind]+green[ind]+blue[ind])/3
+        if avg_color < threshold_path:  #for each pixel, check if dark
+            threshold_counter += 1
+        # if (loop_count%40) == 0: #for each row
+#             if threshold_counter > 29: #if 3/4 of image is dark, then take that as the path
+#                 row_sum += row_number
+#                 count_path += 1
+#             print(threshold_counter, row_number)
+#             threshold_counter = 0
+#             row_number += 1
+        loop_count += 1
+
         ind = ind+1
         red[ind] = buf[d+2]
         # if ind > (40*7) and ind < (40*8) or ind > (40*14) and ind < (40*15) or ind > (40*21) and ind < (40*22):
@@ -116,8 +136,33 @@ while True:
             blue[ind] = 255
         if blue[ind] < 0:
             blue[ind] = 0
+
+        avg_color = (red[ind]+green[ind]+blue[ind])/3
+        if avg_color < threshold_path:  #for each pixel, check if dark
+            threshold_counter += 1
+        if (loop_count%40) == 0: #for each row
+            if threshold_counter > 29: #if 3/4 of image is dark, then take that as the path
+                row_sum += row_number
+                count_path += 1
+#             print(threshold_counter, row_number)
+            threshold_counter = 0
+            row_number += 1
+
         ind=ind+1
+        loop_count += 1
+
+    #calculate center row of dark area
+    center_row =  row_sum/count_path
+
+    p_error = 15-center_row
+
+    if p_error < -5:
+        print(f"left " ,center_row)
+    elif p_error > 5:
+        print(f"right " ,center_row, count_path)
+    else:
+        print(f"straight " ,center_row)
 
     # send the color data as index red green blue
-    for c in range(red.size):
-        print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
+    # for c in range(red.size):
+#         print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
