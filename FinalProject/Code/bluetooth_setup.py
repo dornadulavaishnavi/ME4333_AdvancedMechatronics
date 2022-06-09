@@ -10,7 +10,7 @@ ser = serial.Serial('COM3',9600)
 print('Opening port: ' + str(ser.name))
 
 ser.write(b'AT+VERSION\r\n') # see if you get a response
-ser.write(b'AT+NAMEvaishnavi\r\n') # change the bluetooth name to nickhc06
+ser.write(b'AT+NAMEvaishnavi-hc06\r\n') # change the bluetooth name to nickhc06
 ser.write(b'AT+BAUD115200\r\n') # change the baud to 115200
 
 time.sleep(1) # wait a little for the HC-06 to respond
