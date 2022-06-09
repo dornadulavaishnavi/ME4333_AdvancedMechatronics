@@ -47,8 +47,8 @@ void main() {
         //                LATBbits.LATB13 = 1;
         //                LATBbits.LATB14 = 0;
         //                LATBbits.LATB15 = 1;
-        OC1RS = 1999;
-        LATBbits.LATB14 = 0;
+        OC1RS = 1999/2;   //1999 is max
+        LATBbits.LATB14 = 1;
     }
 }
 
@@ -83,6 +83,8 @@ void PIC_INIT() {
     LATBbits.LATB14 = 0;
     TRISBbits.TRISB15 = 0;
     LATBbits.LATB15 = 0;
+    
+    RPB15Rbits.RPB15R = 0b0101; //set B15 pin to correspond with OC1
 }
 
 void init_Timer3() {
