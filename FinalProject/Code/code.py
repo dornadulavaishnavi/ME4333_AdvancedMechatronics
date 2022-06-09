@@ -1,4 +1,7 @@
 import board
+import busio # for the uart functions
+import digitalio
+
 from adafruit_ov7670 import (
     OV7670,
     OV7670_SIZE_DIV16,
@@ -16,6 +19,8 @@ with digitalio.DigitalInOut(board.GP10) as reset:
     reset.switch_to_output(False)
     time.sleep(0.001)
     bus = busio.I2C(scl=board.GP5, sda=board.GP4)
+
+uart = busio.UART(tx=board.GP0, rx=board.GP1, baudrate=115200,  timeout= 1) # open the uart
 
 threshold_path = 160
 motor_straight = 127
@@ -155,16 +160,26 @@ while True:
     #calculate center row of dark area
 
     # send the color data as index red green blue
-    for c in range(red.size):
-        print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
+    # for c in range(red.size):
+#         print(str(c)+" "+str(int(red[c]))+" "+str(int(green[c]))+" "+str(int(blue[c])))
 
     center_row =  row_sum/count_path
 
     p_error = 15-center_row
 
     if p_error < -2:
-        print(f"right " ,center_row)    #turn to the right
+        print(f"right " ,center_row)    #turn right wheel
     elif p_error > 2:
         print(f"left " ,center_row)
     else:
         print(f"straight " ,center_row)
+
+    i = 0
+    s = str(p_error) + "\r\n" # make a string to print
+    i = i + 1
+    uart.write(bytearray(s)) # uart prints are of type byte
+    data = uart.readline() # read until newline or timeout
+    print(data) # print the data received
+
+    if data is not None:
+        print(str(data,'utf-8')) # print the data as a string
