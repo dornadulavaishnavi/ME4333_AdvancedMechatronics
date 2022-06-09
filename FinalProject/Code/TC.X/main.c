@@ -36,19 +36,23 @@
 
 void PIC_INIT();
 void init_Timer3();
+void init_Timer2();
 
 void main() {
     //keep pic init, A4, B4, UART
     PIC_INIT();
     init_Timer3();
+    init_Timer2();
 
     while (1) {
         //                LATBbits.LATB12 = 0;
         //                LATBbits.LATB13 = 1;
         //                LATBbits.LATB14 = 0;
         //                LATBbits.LATB15 = 1;
-        OC1RS = 1999/2;   //1999 is max
+        OC1RS = 1999 / 2; //1999 is max
         LATBbits.LATB14 = 1;
+        OC4RS = 1999 / 2; //1999 is max
+        LATBbits.LATB12 = 1;
     }
 }
 
@@ -83,8 +87,10 @@ void PIC_INIT() {
     LATBbits.LATB14 = 0;
     TRISBbits.TRISB15 = 0;
     LATBbits.LATB15 = 0;
-    
+
     RPB15Rbits.RPB15R = 0b0101; //set B15 pin to correspond with OC1
+    RPB13Rbits.RPB13R = 0b0101; //set B13 pin to correspond with OC4
+
 }
 
 void init_Timer3() {
@@ -97,4 +103,16 @@ void init_Timer3() {
     OC1R = 0; //initialize before turning OC1 on
     T3CONbits.ON = 1;
     OC1CONbits.ON = 1;
+}
+
+void init_Timer2() {
+    T2CONbits.TCKPS = 1; //Timer 2 Prescaler N = 2
+    OC4CONbits.OCTSEL = 0; //set oc4 to use timer 2
+    PR2 = 1999; //setting up to run 20kHz
+    TMR2 = 0; //initialize TMR2 count to 0
+    OC4CONbits.OCM = 0b110; //PWM mode without fault pin
+    OC4RS = 0; //Duty Cycle = OC4RS/(PR2 + 1) = 75%
+    OC4R = 0; //initialize before turning OC4 on
+    T2CONbits.ON = 1;
+    OC4CONbits.ON = 1;
 }
